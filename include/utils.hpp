@@ -8,6 +8,7 @@
 #include <fstream>
 #include <sstream>
 #include <chrono>
+#include <map>
 #include "cli.hpp"
 
 constexpr size_t MAX_SIZE_FILE = 16234;
@@ -25,4 +26,6 @@ bool isGitIgnored(const std::filesystem::path& filePath) ;
  std::uintmax_t getFileSize(const std::filesystem::path& filepath); 
  void showHelp();
  void showVersion();
+ std::size_t countTokens(const std::filesystem::path& filepath);
+ void displayTokenTree(const std::map<std::filesystem::path, std::size_t>& fileTokens,std::ostream& o);
 

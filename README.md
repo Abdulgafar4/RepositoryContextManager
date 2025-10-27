@@ -143,8 +143,9 @@ repoctx ./src --recent --exclude "README.md" --output recently-updated-files.md
 | `--include`        | Include file extensions                                               | `--include "*.cpp,*.h"`  |
 | `--exclude`        | Exclude file patterns                                                 | `--exclude "test,build"` |
 | `--recent`         | Show files modified in the last 7 days                                | `repoctx . -r`           |
-| `--dirs-only`,`-d` | Show directory structure with ohter sections except for File Contents | `repoctx . -d`           |
-
+| `--dirs-only`,`-d` | Show directory structure with other sections except for File Contents | `repoctx . -d`           |
+| `--token-count-tree`| Show token count tree                                                | `repoctx . --token-count-tree` |
+|`--token-count-tree [threshold]` |  Show token count tree  with minimum threshold             | `repoctx . --token-count-tree 500` |
 # Config
 
 Use `config.toml` to specify default arguments.  
@@ -232,6 +233,8 @@ osdProjects/ # that is a local development directory
     ├── include/
     │   └── utils.hpp         # Utility function declarations
     ├── src/
+    │   ├── config_manager.cpp # Configuration file declarations
+    │   ├── config_manager.hpp # Configuration file (config.toml) parsing
     │   ├── main.cpp          # Main entry point
     │   ├── cli.cpp           # Command-line argument parsing
     │   ├── cli.hpp           # CLI parsing declarations

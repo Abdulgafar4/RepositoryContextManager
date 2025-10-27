@@ -22,7 +22,7 @@ add_executable(repoctx
     src/renderer.cpp
     src/utils.cpp
     src/filter.cpp
-    src/config_manager.cpp )
+    src/config_manager.cpp  )
 
 target_include_directories(repoctx PRIVATE src include)
 

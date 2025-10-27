@@ -47,6 +47,12 @@ namespace cli {
 					};
 			}
 			
+			else if (argument == "--token-count-tree") {
+				options.showTokenCountTree = true;
+				if (i + 1 < argc && std::isdigit(argv[i + 1][0])) {
+					options.tokenCountThreshold = std::stoi(argv[++i]);
+				}
+			}
 			
 			else if (argument == "-r" || argument == "--recent") {
 				options.recent = true;

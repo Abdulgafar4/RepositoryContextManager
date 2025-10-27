@@ -2,6 +2,29 @@
 
 namespace output {
 
+
+	void writeTokenCountTree(std::ostream& o,const std::filesystem::path& path, const cli::Options& opt) {
+		o << "Token Count Tree:\n";
+		if (opt.tokenCountThreshold > 0) {
+		  o << "Showing files with " << opt.tokenCountThreshold << "+ tokens:\n";
+		}
+		Filter::FilterManager filter(opt);
+
+		std::map<std::filesystem::path, std::size_t> fileTokens;
+		for (const auto& entry : std::filesystem::recursive_directory_iterator(path)) {
+			if (entry.is_regular_file() && filter.isMatchingFilters(entry.path())) {
+				auto relative = std::filesystem::relative(entry.path(), path);
+				std::size_t tokens = countTokens(entry.path());
+
+				if (tokens >= opt.tokenCountThreshold) {
+					fileTokens[relative] = tokens;
+				}
+			}
+		}
+
+		displayTokenTree(fileTokens,o);
+	}
+
 	//if filename is empty target the console otherwise write to the file
 	std::ostream& targetOut(std::ofstream& file, const std::string& filename) {
 		if (filename.empty())
@@ -130,6 +153,24 @@ namespace output {
 
 	void renderRepositoryContext(const std::string& filename, const cli::Options& opt) {
 		try {
+
+			if (opt.showTokenCountTree) {
+				std::ofstream fileOutput;
+				std::ostream& o = targetOut(fileOutput, filename);
+
+				for (const auto& input : opt.inputFiles) {
+					const auto absolute = std::filesystem::absolute(input);
+
+					if (!std::filesystem::exists(absolute)) {
+						std::cerr << "Error: Path does not exist: " << absolute << std::endl;
+						continue;
+					}
+
+					writeTokenCountTree(o,absolute, opt);
+				}
+				return;
+			}
+
 			std::ofstream fileOutput;
 
 			std::ostream& o = targetOut(fileOutput, filename);

@@ -9,6 +9,7 @@
 #include "fs_travel.hpp"
 #include "utils.hpp"
 #include "filter.hpp"
+#include <map>
 
 namespace output {
 	//output target
@@ -19,5 +20,6 @@ namespace output {
 	void writeFileStructure(std::ostream& o, const std::filesystem::path& path);
 	void writeFileContents(std::ostream& o, const std::filesystem::path& path,const cli::Options& opt);
 	void writeFileStatistics(std::ostream& o, const std::filesystem::path& path, const cli::Options& opt);
+	void writeTokenCountTree(std::ostream& o,const std::filesystem::path& path, const cli::Options& opt);
 
 }

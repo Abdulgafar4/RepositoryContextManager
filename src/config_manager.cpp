@@ -41,6 +41,12 @@ namespace config {
             if (auto dirs = tbl["dirs_only"].value<bool>(); dirs && *dirs) {
                 opts.dirsOnly = true;
             }
+            if (auto token_tree = tbl["token_count_tree"].value<bool>(); token_tree && *token_tree) {
+                opts.showTokenCountTree = true;
+            }
+            if (auto threshold = tbl["token_count_threshold"].value<int64_t>()) {
+                opts.tokenCountThreshold = static_cast<int>(*threshold);
+            }
         }
         catch (const toml::parse_error &err) {
             std::cerr << "Failed to parse config.toml: " << err << "\n";
@@ -83,6 +89,13 @@ namespace config {
 
         if (!cliOpts.inputFiles.empty()) {
             merged.inputFiles = cliOpts.inputFiles;
+        }
+        if (cliOpts.showTokenCountTree) {
+            merged.showTokenCountTree = true;
+        }
+
+        if (cliOpts.tokenCountThreshold > 0) {
+            merged.tokenCountThreshold = cliOpts.tokenCountThreshold;
         }
         return merged;
 

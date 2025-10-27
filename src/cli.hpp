@@ -5,6 +5,7 @@
 #include <string>
 #include <functional>
 #include <filesystem>
+#include <cctype>
 #include "utils.hpp"
 
 
@@ -18,6 +19,8 @@ namespace cli {
 		bool showVersion = false;
 		bool recent = false; 
 		bool dirsOnly = false; 
+		bool showTokenCountTree = false;
+		int tokenCountThreshold = 0;
 		std::string outputFile;
 		std::vector<std::string_view>inputFiles; 
 		std::string excludePattern;

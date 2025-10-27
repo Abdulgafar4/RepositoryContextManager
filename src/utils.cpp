@@ -277,9 +277,35 @@ void showHelp() {
 		<< " --include  Include file extensions (*.cpp,*.h)\n"
 		<< " --exclude  Exclude files \n"
 		<< " -r --recent  Show recently modified files \n"
-		<< "--dirs-only -d Show Directory Structure with other sections except for File Contents\n";
+		<< "--dirs-only -d Show Directory Structure with other sections except for File Contents\n"
+		<< "  --token-count-tree [threshold]     Show token count tree (optional: min tokens)\n";
 }
 
 void showVersion() {
 	std::cout << "repoctx release 0.1\n";
+}
+
+std::size_t countTokens(const std::filesystem::path& filepath) {
+	std::ifstream file(filepath);
+	if (!file) {
+		std::cerr << "file did not open for token counting: " << filepath << '\n';
+		return 0;
+	}
+	std::size_t numOfWords = 0;
+	std::string word;
+	while (file >> word) {
+		numOfWords++;
+	}
+	return numOfWords;
+}
+
+void displayTokenTree(const std::map<std::filesystem::path, std::size_t>& fileTokens, std::ostream& o) {
+	if (fileTokens.empty()) {
+		o << "No Files found matching criteria.\n";
+		return;
+	}
+
+	for (const auto& [filepath, tokens] : fileTokens) {
+		o << "|- " << filepath.string() << " (" << tokens << " tokens)\n";
+	}
 }
