@@ -1,11 +1,5 @@
 #include "utils.hpp"
 
-	//we are gonna initialize these variable and during the execution we will check
-	//static  std::string m_includedExtension;
-	//static std::string m_excludedExtension;
-
-
-
 
 bool isGitIgnored(const std::filesystem::path& filePath) {
 	std::string pathStr = filePath.string();

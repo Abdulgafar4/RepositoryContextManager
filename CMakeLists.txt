@@ -3,38 +3,28 @@ project(repoctx VERSION 0.1.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Adding TOML fetch
+
 include(FetchContent)
 FetchContent_Declare(
   tomlplusplus
   GIT_REPOSITORY https://github.com/marzer/tomlplusplus.git
-  GIT_TAG v3.4.0 # or latest stable
+  GIT_TAG v3.4.0 
 )
 FetchContent_MakeAvailable(tomlplusplus)
 
-# if does not open try   link_directories("<Path-to-vcpkg>/installed/x64-windows/lib")
 
-add_executable(repoctx
-    src/main.cpp
-    src/cli.cpp
-    src/fs_travel.cpp
-    src/git_info.cpp
-    src/renderer.cpp
-    src/utils.cpp
-    src/filter.cpp
-    src/config_manager.cpp  )
-
-target_include_directories(repoctx PRIVATE src include)
-
-# Link toml++ to target
-target_link_libraries(repoctx tomlplusplus::tomlplusplus)
-
-# Add config.toml to build folder
-add_custom_command(TARGET repoctx POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        ${CMAKE_SOURCE_DIR}/config.toml
-        $<TARGET_FILE_DIR:repoctx>/config.toml
+FetchContent_Declare(
+    googletest
+    GIT_REPOSITORY https://github.com/google/googletest.git
+    GIT_TAG v1.15.2
 )
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
+
+enable_testing()
+include(GoogleTest)
+
+
 
 
 # It tries to find system libgit2 
@@ -43,22 +33,45 @@ if(PkgConfig_FOUND)
     pkg_check_modules(LIBGIT2 libgit2)
 endif()
 
+# if does not open try   link_directories("<Path-to-vcpkg>/installed/x64-windows/lib")
+add_library(repoctx_lib STATIC
+   src/cli.cpp 
+   src/fs_travel.cpp 
+   src/git_info.cpp 
+   src/renderer.cpp 
+   src/utils.cpp 
+   src/filter.cpp 
+   src/config_manager.cpp 
+)
+
+target_include_directories(repoctx_lib PUBLIC src include)
+target_link_libraries(repoctx_lib PUBLIC tomlplusplus::tomlplusplus)
+
 if(LIBGIT2_FOUND)
-    # Use libgit2 which is system-installed
-    target_link_libraries(repoctx ${LIBGIT2_LIBRARIES})
-    target_include_directories(repoctx PRIVATE ${LIBGIT2_INCLUDE_DIRS})
-    target_compile_options(repoctx PRIVATE ${LIBGIT2_CFLAGS_OTHER})
+
+    target_link_libraries(repoctx_lib ${LIBGIT2_LIBRARIES})
+    target_include_directories(repoctx_lib PRIVATE ${LIBGIT2_INCLUDE_DIRS})
+    target_compile_options(repoctx_lib PRIVATE ${LIBGIT2_CFLAGS_OTHER})
     message(STATUS "Using system libgit2")
 else()
-#  Go back to vcpkg libgit2(typical for Windows)
     find_package(libgit2 CONFIG REQUIRED)
-    target_link_libraries(repoctx libgit2::libgit2package)
+    target_link_libraries(repoctx_lib PUBLIC libgit2::libgit2package)
     message(STATUS "Using vcpkg libgit2")
 endif()
 
-# Windows related compiler stuff
 if(WIN32)
-    target_compile_definitions(repoctx PRIVATE _CRT_SECURE_NO_WARNINGS)
+    target_compile_definitions(repoctx_lib PUBLIC _CRT_SECURE_NO_WARNINGS)
 endif()
+
+add_executable(repoctx src/main.cpp)
+target_link_libraries(repoctx PRIVATE repoctx_lib)
+
+add_custom_command(TARGET repoctx POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        ${CMAKE_SOURCE_DIR}/config.toml
+        $<TARGET_FILE_DIR:repoctx>/config.toml
+)
+
+add_subdirectory(tests)
 
 install(TARGETS repoctx RUNTIME DESTINATION bin)

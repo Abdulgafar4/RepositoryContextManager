@@ -208,6 +208,14 @@ Total Lines: 1,247
 ```
 ````
 
+# Testing
+
+This project includes comprehensive tests using **Google Test (GTest)** framework to ensure code reliability and maintainability.
+
+## Build Tests
+
+`ctest --test-dir build --output-on-failure`
+
 # Testing from Source
 
 ```bash
@@ -248,8 +256,14 @@ osdProjects/ # that is a local development directory
     |   └── filter.hpp        #Filtering declarations
     |   └── filter.cpp        # Filtering new features
     ├── CMakeLists.txt        # Build configuration
+    ├── tests/
+    │    ├── CMakeLists.txt
+    │    ├── utils_test.cpp  # Test utils functions
+    │    ├── filter_test.cpp # Test filters
+    │    └── file_stats.cpp  # Test File Statististics
     ├── vcpkg.json           # Dependencies
     └── README.md            # README file
+  
 ```
 
 # Contributing
