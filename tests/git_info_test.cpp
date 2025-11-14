@@ -30,7 +30,7 @@ protected:
         file.close();
 
         system("git add .");
-        system("git commit -m Initial Commit");
+        system("git commit -m InitialCommit");
     }
 };
 
