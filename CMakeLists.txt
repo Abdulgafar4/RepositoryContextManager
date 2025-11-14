@@ -3,6 +3,7 @@ project(repoctx VERSION 0.1.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 include(FetchContent)
 FetchContent_Declare(
@@ -26,13 +27,6 @@ include(GoogleTest)
 
 
 
-
-# It tries to find system libgit2 
-find_package(PkgConfig QUIET)
-if(PkgConfig_FOUND)
-    pkg_check_modules(LIBGIT2 libgit2)
-endif()
-
 # if does not open try   link_directories("<Path-to-vcpkg>/installed/x64-windows/lib")
 add_library(repoctx_lib STATIC
    src/cli.cpp 
@@ -47,13 +41,22 @@ add_library(repoctx_lib STATIC
 target_include_directories(repoctx_lib PUBLIC src include)
 target_link_libraries(repoctx_lib PUBLIC tomlplusplus::tomlplusplus)
 
-if(LIBGIT2_FOUND)
 
-    target_link_libraries(repoctx_lib ${LIBGIT2_LIBRARIES})
-    target_include_directories(repoctx_lib PRIVATE ${LIBGIT2_INCLUDE_DIRS})
-    target_compile_options(repoctx_lib PRIVATE ${LIBGIT2_CFLAGS_OTHER})
-    message(STATUS "Using system libgit2")
+find_package(PkgConfig QUIET)
+if(PkgConfig_FOUND)
+    pkg_check_modules(LIBGIT2 REQUIRED libgit2)
+    if(LIBGIT2_FOUND)
+       
+        target_include_directories(repoctx_lib PUBLIC ${LIBGIT2_INCLUDE_DIRS})
+        target_link_directories(repoctx_lib PUBLIC ${LIBGIT2_LIBRARY_DIRS})
+        target_link_libraries(repoctx_lib PUBLIC ${LIBGIT2_LIBRARIES})
+        target_compile_options(repoctx_lib PUBLIC ${LIBGIT2_CFLAGS_OTHER})
+        message(STATUS "Using system libgit2")
+    else()
+        message(FATAL_ERROR "libgit2 not found with pkg-config")
+    endif()
 else()
+    # Go back to vcpkg libgit2 
     find_package(libgit2 CONFIG REQUIRED)
     target_link_libraries(repoctx_lib PUBLIC libgit2::libgit2package)
     message(STATUS "Using vcpkg libgit2")
