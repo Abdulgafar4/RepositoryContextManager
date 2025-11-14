@@ -22,8 +22,8 @@ protected:
     void createTestGitRepo() {
         std::filesystem::current_path(testRepoPath);
         system("git init");
-        system("git config user.email 'test@gmail.com'");
-        system("git config user.name 'Test User'");
+        system("git config user.email test@gmail.com");
+        system("git config user.name TestUser");
 
         std::ofstream file(testRepoPath / "test.txt");
         file << "test content";
@@ -76,7 +76,7 @@ TEST_F(GitInfoTest, AuthorFormat) {
 
     auto info = gitInfo::getGitData(testRepoPath.string());
     
-    EXPECT_NE(info.m_author.find("Test User"), std::string::npos);
+    EXPECT_NE(info.m_author.find("TestUser"), std::string::npos);
     EXPECT_NE(info.m_author.find("test@gmail.com"), std::string::npos);
     EXPECT_NE(info.m_author.find("<"), std::string::npos);
     EXPECT_NE(info.m_author.find(">"), std::string::npos);
