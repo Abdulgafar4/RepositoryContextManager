@@ -7,14 +7,24 @@
 class GitInfoTest: public ::testing::Test {
 protected:
     std::filesystem::path testRepoPath;
-    void SetUp() override {
-        testRepoPath = std::filesystem::temp_directory_path() / "test_git_repo";
+ void SetUp() override {
+        auto testInfo = ::testing::UnitTest::GetInstance()->current_test_info();
+        std::string testName = std::string(testInfo->name());
+        
+        testRepoPath = std::filesystem::temp_directory_path() / ("test_git_repo_" + testName);
+        
+        if(std::filesystem::exists(testRepoPath)) {
+            std::error_code ec;
+            std::filesystem::remove_all(testRepoPath, ec);
+        }
+        
         std::filesystem::create_directories(testRepoPath);
     } 
     
     void TearDown() override {
         if(std::filesystem::exists(testRepoPath)) {
-            std::filesystem::remove_all(testRepoPath);
+            std::error_code ec;
+            std::filesystem::remove_all(testRepoPath, ec);
         }
     }
 
