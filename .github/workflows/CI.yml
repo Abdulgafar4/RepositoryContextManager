@@ -1,0 +1,63 @@
+name: CMake Build and Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    
+    runs-on: ${{ matrix.os }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Install dependencies (Ubuntu)
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake libgit2-dev pkg-config
+    
+    - name: Install dependencies (macOS)
+      if: runner.os == 'macOS'
+      run: |
+        brew install cmake libgit2 pkg-config
+    
+    - name: Setup vcpkg and install libgit2 (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        git clone https://github.com/Microsoft/vcpkg.git
+        cd vcpkg
+        .\bootstrap-vcpkg.bat
+        .\vcpkg install libgit2:x64-windows
+        echo "VCPKG_ROOT=${{ github.workspace }}\vcpkg" >> $env:GITHUB_ENV
+    
+    - name: Configure CMake (Linux/macOS)
+      if: runner.os != 'Windows'
+      run: cmake -B build
+    
+    - name: Configure CMake (Windows)
+      if: runner.os == 'Windows'
+      run: cmake -B build -DCMAKE_TOOLCHAIN_FILE="${{ github.workspace }}\vcpkg\scripts\buildsystems\vcpkg.cmake"
+    
+    - name: Build
+      run: cmake --build build --config Release
+    
+    - name: Run tests
+      run: |
+        cd build
+        ctest --output-on-failure -C Release
+    
+    - name: Test executable (Linux/macOS)
+      if: runner.os != 'Windows'
+      run: ./build/repoctx --version
+    
+    - name: Test executable (Windows)
+      if: runner.os == 'Windows'
+      run: .\build\Release\repoctx.exe --version
