@@ -19,20 +19,13 @@ Command-line tool that analyzes local git repositories and creates a text file c
 -   C++17 compatible compiler
 -   Git(for repository analysis features)
 
-# Installation
-
-# 1. Install vcpkg and dependencies
-
-# Clone vcpkg Windows (if not already installed)
+# Windows
 
 ```bash
 git clone https://github.com/Microsoft/vcpkg.git
 cd vcpkg
 .\bootstrap-vcpkg.bat
-$env:VCPKG_ROOT = $PWD
 
-# Install libgit2 for Windows x64
-.\vcpkg install libgit2:x64-windows
 ```
 
 # 2. Build the project
@@ -89,6 +82,7 @@ cd RepositoryContextPackager
 cmake -B build
 cmake --build build
 ```
+**Note:** macOS automatically uses system libgit2 via Homebrew. No vcpkg needed!
 
 # Usage
 
@@ -214,21 +208,38 @@ This project includes comprehensive tests using **Google Test (GTest)** framewor
 
 ## Build Tests
 
-`ctest --test-dir build --output-on-failure`
-
-# Testing from Source
-
 ```bash
+# Build the project
+cmake -B build
+cmake --build build
 
+# Run all tests
+cd build
+ctest --output-on-failure
 
-# Build
-cmake --build build --config Release
+# Or run individual test executables (Linux/macOS)
+./tests/filter_test
+./tests/file_stats
+./tests/utils_test
+./tests/git_info_test
 
-# Test locally
-./build/Release/repoctx --help    # Linux/macOS
-.\build\Release\repoctx.exe --help # Windows
+# Windows
+.\tests\filter_test.exe
+.\tests\file_stats.exe
+.\tests\utils_test.exe
+.\tests\git_info_test.exe
 
 ```
+
+
+
+## Continuous Integration
+
+This project uses **GitHub Actions** for automated testing on every push and pull request. The CI pipeline:
+
+- Builds on **Ubuntu**, **macOS**, and **Windows**
+- Runs **17 unit tests** across all platforms
+- Ensures cross-platform compatibility
 
 ## Project Structure
 
@@ -236,7 +247,7 @@ cmake --build build --config Release
 osdProjects/ # that is a local development directory
 ├── vcpkg/                          # C++ package manager
 |     ├── scripts/buildsystems/vcpkg.cmake
-│     └── [vcpkg installation files...]
+│     └──[vcpkg installation files...]
 └── RepositoryContextPackager/      # This project
     ├── include/
     │   └── utils.hpp         # Utility function declarations
@@ -258,9 +269,11 @@ osdProjects/ # that is a local development directory
     ├── CMakeLists.txt        # Build configuration
     ├── tests/
     │    ├── CMakeLists.txt
-    │    ├── utils_test.cpp  # Test utils functions
-    │    ├── filter_test.cpp # Test filters
-    │    └── file_stats.cpp  # Test File Statististics
+    │    ├── utils_test.cpp     # Test utils functions
+    │    ├── filter_test.cpp    # Test filters
+    │    ├── file_stats.cpp     # Test file statistics
+    │    └── git_info_test.cpp  # Test git integration 
+    │ 
     ├── vcpkg.json           # Dependencies
     └── README.md            # README file
   
